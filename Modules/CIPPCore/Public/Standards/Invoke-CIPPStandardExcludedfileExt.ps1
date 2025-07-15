@@ -29,6 +29,7 @@ function Invoke-CIPPStandardExcludedfileExt {
     #>
 
     param($Tenant, $Settings)
+    Test-CIPPStandardLicense -StandardName 'ExcludedfileExt' -TenantFilter $Tenant -RequiredCapabilities @('SHAREPOINTWAC', 'SHAREPOINTSTANDARD', 'SHAREPOINTENTERPRISE', 'ONEDRIVE_BASIC', 'ONEDRIVE_ENTERPRISE')
     ##$Rerun -Type Standard -Tenant $Tenant -Settings $Settings 'ExcludedfileExt'
 
     $CurrentInfo = New-GraphGetRequest -Uri 'https://graph.microsoft.com/beta/admin/sharepoint/settings' -tenantid $Tenant -AsApp $true
@@ -69,6 +70,7 @@ function Invoke-CIPPStandardExcludedfileExt {
     if ($Settings.alert -eq $true) {
 
         if ($MissingExclusions) {
+            Write-StandardsAlert -message 'Exclude File Extensions from Syncing missing some extensions.' -object $MissingExclusions -tenant $Tenant -standardName 'ExcludedfileExt' -standardId $Settings.standardId
             Write-LogMessage -API 'Standards' -tenant $tenant -message "Excluded synced files does not contain $($MissingExclusions -join ',')" -sev Alert
         } else {
             Write-LogMessage -API 'Standards' -tenant $tenant -message "Excluded synced files contains $($Settings.ext)" -sev Info

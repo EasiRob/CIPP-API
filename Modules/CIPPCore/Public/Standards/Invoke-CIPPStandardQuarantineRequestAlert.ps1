@@ -29,7 +29,7 @@ function Invoke-CIPPStandardQuarantineRequestAlert {
     #>
 
     param ($Tenant, $Settings)
-
+    Test-CIPPStandardLicense -StandardName 'QuarantineRequestAlert' -TenantFilter $Tenant -RequiredCapabilities @('EXCHANGE_S_STANDARD', 'EXCHANGE_S_ENTERPRISE', 'EXCHANGE_LITE') #No Foundation because that does not allow powershell access
     $PolicyName = 'CIPP User requested to release a quarantined message'
 
     $CurrentState = New-ExoRequest -TenantId $Tenant -cmdlet 'Get-ProtectionAlert' -Compliance |
@@ -78,7 +78,9 @@ function Invoke-CIPPStandardQuarantineRequestAlert {
         if ($StateIsCorrect -eq $true) {
             Write-LogMessage -API 'Standards' -Tenant $Tenant -Message 'Quarantine Request Alert is enabled' -sev Info
         } else {
-            Write-LogMessage -API 'Standards' -Tenant $Tenant -Message 'Quarantine Request Alert is disabled' -sev Info
+            $Message = 'Quarantine Request Alert is not enabled.'
+            Write-StandardsAlert -message $Message -object $CurrentState -tenant $Tenant -standardName 'QuarantineRequestAlerts' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -Tenant $Tenant -Message $Message -sev Info
         }
     }
 
